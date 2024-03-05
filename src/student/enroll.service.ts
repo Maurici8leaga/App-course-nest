@@ -3,7 +3,8 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable() // Este permite realizar dependency inyeccion de servicios mediante tokens en los contructores de las clases
 export class EnrollService {
+  // metodo que retornaa por ahora solo un string
   enroll() {
-    return 'enroll';
+    return 'esto es enroll';
   }
 }

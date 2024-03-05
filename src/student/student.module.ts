@@ -24,7 +24,7 @@ import { EnrollService } from './enroll.service';
       provide: 'CONFIG',
       useValue: {
         // useValue es para asociar al servicio un valor y este sera usado donde se implemente
-        url: 'http://localhost:3000',
+        url: 'http://localhost:1000',
       },
     },
     {
@@ -34,7 +34,7 @@ import { EnrollService } from './enroll.service';
         // useFactory para implementar una funcion
         return {
           // siempre retornar algo
-          url: 'http://localhost:4000',
+          url: 'http://localhost:2000',
         };
       },
     },
