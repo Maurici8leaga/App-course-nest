@@ -1,0 +1,29 @@
+# docker compose permite gestionar las instrucciones de como se va a comportar docker
+version: '3.8'
+
+# aqui van las especificaciones de los servicios
+services:
+  mysql-server:
+    image: mysql:8 # esta es la imagen que se busca en docker hub repository
+    container_name: mysql-server
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345 # credenciales
+      MYSQL_DATABASE: db
+      MYSQL_USER: mchamorro # credenciales que estan en el docker hub
+      MYSQL_PASSWORD: 12345 # credenciales
+    restart: unless-stoped # se reinicia solo cuando se detenga (condicion para reiniciar)
+    ports: 
+      - 3310:3306 # 3306 (puerto interno, 3310 puerto de exposicion)
+    networks: # comunicacion de contenedores en caso de existir una red de contenedoress
+      - net-app # <- nombre de esta red
+    volumes: # es para la persistencia es necesario porque si se llega a borrar la data esta persistira
+      - vol-app:/var/lib/mysql   # direccion por defecto
+
+networks:
+  net-app:
+    driver: bridge
+    name: net-app
+
+volumes:
+  vol-app:
+    name: vol-app     
