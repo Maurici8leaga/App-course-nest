@@ -11,14 +11,42 @@ services:
       MYSQL_DATABASE: db
       MYSQL_USER: mchamorro # credenciales que estan en el docker hub
       MYSQL_PASSWORD: 12345 # credenciales
-    restart: unless-stoped # se reinicia solo cuando se detenga (condicion para reiniciar)
-    ports: 
+    restart: unless-stopped # se reinicia solo cuando se detenga (condicion para reiniciar)
+    ports:
       - 3310:3306 # 3306 (puerto interno, 3310 puerto de exposicion)
     networks: # comunicacion de contenedores en caso de existir una red de contenedoress
       - net-app # <- nombre de esta red
     volumes: # es para la persistencia es necesario porque si se llega a borrar la data esta persistira
-      - vol-app:/var/lib/mysql   # direccion por defecto
+      - vol-app:/var/lib/mysql # direccion por defecto
+    healthcheck: # config para ver si estatus del contenedor
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      # comando para realizar el test de verificacion 'CMD' es para comand terrminal, mysqladmin es la herramienta para administrar, ping es el comando hacer, -h es flag que indica se le aplica a 'locaalhost'
+      interval: 10s # cada 10s realice la verificación
+      timeout: 10s # espera máxima x intento
+      retries: 3 # política de reintentos. si no lo levanta en el numero de intentos lo destruye el docker y lo vuelve a montar
+      start_interval: 5s # espera que se le da antes de empezar las verificaciones  ya que algunos pueden tardar mas que otros
 
+mysql-client:
+  image: phpmyadmin
+  container_name: mysql-client
+  environment:
+    PMA_ARBITRARY: 1 # lo que genera es una conexión disponible y segura con este proveedor
+  restart: unless-stopped # se reinicia solo cuando se detenga
+  ports:
+    - 8080:80 # por default
+  networks:
+    - net-app # se coloca la misma que se tiene en networks
+  healthcheck:
+    test: ['CMD', 'curl', '-f', 'http://localhost']
+    interval: 10s
+    timeout: 10s
+    retries: 3
+    start_period: 5s
+  depends_on:
+    mysql-server: # espera que arranque el servidor de mysql para comenzar este
+      condition: service_healthy
+
+# red global
 networks:
   net-app:
     driver: bridge
@@ -26,4 +54,4 @@ networks:
 
 volumes:
   vol-app:
-    name: vol-app     
+    name: vol-app
