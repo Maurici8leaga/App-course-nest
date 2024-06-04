@@ -14,7 +14,7 @@ services:
     restart: unless-stopped # se reinicia solo cuando se detenga (condicion para reiniciar)
     ports:
       - 3310:3306 # 3306 (puerto interno, 3310 puerto de exposicion)
-    networks: # comunicacion de contenedores en caso de existir una red de contenedoress
+    networks: # comunicacion de contenedores en caso de existir una red de contenedores
       - net-app # <- nombre de esta red
     volumes: # es para la persistencia es necesario porque si se llega a borrar la data esta persistira
       - vol-app:/var/lib/mysql # direccion por defecto
@@ -26,25 +26,72 @@ services:
       retries: 3 # política de reintentos. si no lo levanta en el numero de intentos lo destruye el docker y lo vuelve a montar
       start_interval: 5s # espera que se le da antes de empezar las verificaciones  ya que algunos pueden tardar mas que otros
 
-mysql-client:
-  image: phpmyadmin
-  container_name: mysql-client
-  environment:
-    PMA_ARBITRARY: 1 # lo que genera es una conexión disponible y segura con este proveedor
-  restart: unless-stopped # se reinicia solo cuando se detenga
-  ports:
-    - 8080:80 # por default
-  networks:
-    - net-app # se coloca la misma que se tiene en networks
-  healthcheck:
-    test: ['CMD', 'curl', '-f', 'http://localhost']
-    interval: 10s
-    timeout: 10s
-    retries: 3
-    start_period: 5s
-  depends_on:
-    mysql-server: # espera que arranque el servidor de mysql para comenzar este
-      condition: service_healthy
+  mysql-client:
+    image: phpmyadmin
+    container_name: mysql-client
+    environment:
+      PMA_ARBITRARY: 1 # lo que genera es una conexión disponible y segura con este proveedor
+    restart: unless-stopped # se reinicia solo cuando se detenga
+    ports:
+      - 8080:80 # por default
+    networks:
+      - net-app # se coloca la misma que se tiene en networks
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost']
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    depends_on:
+      mysql-server: # espera que arranque el servidor de mysql para comenzar este
+        condition: service_healthy
+
+  mongo-server:
+    image: mongo:4 # imagen de mongo que se puede conseguir aca https://hub.docker.com/_/mongo
+    container_name: mongo-server
+    restart: unless-stopped # se reinicia solo cuando se detenga (condicion para reiniciar)
+    ports:
+      - 27017:27017 # pueto por defecto de mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root # credeciales de mongo
+      MONGO_INITDB_ROOT_PASSWORD: 12345
+      MONGO_INITDB_DATABASE: db
+    volumes: # es para la persistencia es necesario porque si se llega a borrar la data esta persistira
+      - vol-app-mongo:/data/db
+    networks: # comunicacion de contenedores en caso de existir una red de contenedores
+      - net-app
+    healthcheck: # config para ver si estatus del contenedor
+      test: [
+          'CMD', # es para comand terrminal
+          'mongo',
+          '--quiet', # sirve para ejecutar el healtcheck haciendo ping a la direccion siguiente
+          '127.0.0.1/test',
+          '--eval',
+          "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'", # quit es para la respuesta del ping del healtcheck
+        ]
+      interval: 10s # cada 10s realice la verificación
+      timeout: 10s # espera máxima x intento
+      retries: 3 # política de reintentos. si no lo levanta en el numero de intentos lo destruye el docker y lo vuelve a montar
+      start_period: 5s # espera que se le da antes de empezar las verificaciones  ya que algunos pueden tardar mas que otros
+
+  mongo-client:
+    image: mongo-express:1.0.0-18-alpine3.18 # imagen de mongo express que sirve para mongo-client se puede conseguir aca https://hub.docker.com/_/mongo-express
+    container_name: mongo-client
+    restart: unless-stopped
+    ports:
+      - 8081:8081 # puerto por default
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root # credenciales
+      ME_CONFIG_MONGODB_ADMINPASSWORD: 12345
+      ME_CONFIG_BASICAUTH_USERNAME: root
+      ME_CONFIG_BASICAUTH_PASSWORD: 12345
+      ME_CONFIG_MONGODB_SERVER: mongo-server
+      ME_CONFIG_MONGODB_PORT: 27017
+    networks:
+      - net-app
+    depends_on:
+      mongo-server: # espera que arranque el servidor de mysql para comenzar este
+        condition: service_healthy
 
 # red global
 networks:
@@ -53,5 +100,7 @@ networks:
     name: net-app
 
 volumes:
-  vol-app:
+  vol-app: # para sql
     name: vol-app
+  vol-app-mongo: # para mongo
+    name: vol-app-mongo

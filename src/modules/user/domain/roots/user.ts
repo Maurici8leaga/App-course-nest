@@ -1,10 +1,15 @@
 import { Role } from '../entities/role';
-import { UserProperties } from './interfaces/user.interface';
+import { Address } from '../entities/address';
+import {
+  UserProperties,
+  UserUpdateProperties,
+} from './interfaces/user.interface';
 
 export class User {
   private readonly id: string;
   private fullname: string;
   private image: string;
+  private address: Address;
   private readonly email: string;
   private password: string;
   private refreshToken: string;
@@ -19,7 +24,7 @@ export class User {
     // El metodo Object.assign permite crear un nuevo objeto con las propiedades del objeto del primer parametro que viene siendo las propiedades de
     // la clase User y el 2do parametro las propiedades que tiene el objeto 'props'
     Object.assign(this, props); // esto es funcional para cuando se tienen muchas propiedades que inicializar y ayuda a hacer un codigo mas limpio
-    this.createdAt = new Date();
+    if (!props.createdAt) this.createdAt = new Date();
 
     // Validaciones para las reglas de negocio opcion 1: en el constructor
   }
@@ -32,6 +37,7 @@ export class User {
       fullname: this.fullname,
       email: this.email,
       image: this.image,
+      address: this.address,
       password: this.password,
       refreshToken: this.refreshToken,
       roles: this.roles,
@@ -39,6 +45,16 @@ export class User {
       updatedAt: this.updatedAt,
       deletedAt: this.deletedAt,
     };
+  }
+
+  // metodo para act el user y agregar fecha de act
+  update(fieldsToUpdate: UserUpdateProperties) {
+    Object.assign(this, fieldsToUpdate);
+    this.updatedAt = new Date();
+  }
+
+  delete() {
+    this.deletedAt = new Date();
   }
 
   // Validaciones para las reglas de negocio opcion 2: dentro de la especificación de un método directamente con las reglas
