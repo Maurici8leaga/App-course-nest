@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm';
+import { RoleEntity } from 'src/modules/role/infraestructure/entities/role.entity';
 
 @Entity({ name: 'user' }) // este sera el nombre que sera reconocido atraves de la db, OJO no es igual que el de la clase
 export class UserEntity {
@@ -34,5 +35,7 @@ export class UserEntity {
   @Column({ type: 'datetime', nullable: true })
   deletedAt: Date;
 
-  roles: any[];
+  @ManyToMany(() => RoleEntity, (role) => role.users, { eager: true }) // eager es para traer todo lo que tengaa la coleccion de la db si es lazy que este esta config por default trae pocos de la collecion
+  @JoinTable() // table dominante de la relación
+  roles: RoleEntity[];
 }

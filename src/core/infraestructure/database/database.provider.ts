@@ -1,4 +1,5 @@
 import { UserEntity } from 'src/modules/user/infraestructure/user.entity';
+import { RoleEntity } from 'src/modules/role/infraestructure/entities/role.entity';
 import { DataSource } from 'typeorm';
 
 export const databaseProviders = [
@@ -12,7 +13,7 @@ export const databaseProviders = [
         username: 'mchamorro', // credenciales
         password: '12345', // credenciales
         database: 'db',
-        entities: [UserEntity], // aqui debera ir todas las entidades que existan
+        entities: [UserEntity, RoleEntity], // aqui debera ir todas las entidades que existan
         synchronize: true, // se usa solo para entorno de desarrollo
         logging: true, // dev
       });
