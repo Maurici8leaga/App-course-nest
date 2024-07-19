@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsUUID, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MinLength,
+} from 'class-validator';
 
 // este e sun ejemplo de un class validator de manera de tener un class abstraido para cada caso
 export class Role {
@@ -9,7 +15,7 @@ export class Role {
   @IsUUID()
   id: string;
 
-  @IsNotEmpty()
+  @IsOptional() // se coloca opcional para que en el array de roles no tenga que ir el name solo con el id sea suficiente
   @IsString()
   @MinLength(3)
   name: string;

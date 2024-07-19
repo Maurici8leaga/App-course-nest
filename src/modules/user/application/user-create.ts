@@ -1,15 +1,17 @@
 // se crea un file para cada funcionalidad
+import { Inject, Injectable } from '@nestjs/common';
 import { UserRepository } from '../domain/repositories/user.repository';
 import { User } from '../domain/roots/user';
+import { UserInfraestructure } from '../infraestructure/user.infraestructure';
 
+@Injectable() // se debe colocar este decorador para pueda ejecutar la funcionalidad ".save" de las funciones de crear el user
+// de esta forma se habilita este como servicio
 export class UserCreate {
-  repository: UserRepository;
-
   // design pattern: inyección de dependencias: dependencias visibles
   // PRINCIPIO SOLID: Inversión de dependencias
-  constructor(repository: UserRepository) {
-    this.repository = repository;
-  }
+  constructor(
+    @Inject(UserInfraestructure) private readonly repository: UserRepository,
+  ) {}
 
   // defines tus casos de uso: deben estar implementados desde otras capas para darles vida
   async save(user: User) {

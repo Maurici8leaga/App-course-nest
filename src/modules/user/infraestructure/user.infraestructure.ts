@@ -3,8 +3,9 @@ import { UserRepository } from '../domain/repositories/user.repository';
 import { User } from '../domain/roots/user';
 import { UserDto } from './dtos/user.dto';
 import { UserEntity } from './user.entity';
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable() // se coloca este decorador como ref ya que nest pide que se coloque este donde esta el orig de la log que se aplica en user-create
 //export class UserInfraestructure implements UserRepository
 export class UserInfraestructure implements UserRepository {
   // implements UserRepository es para que tenga la estructura declarada en UserRepository
