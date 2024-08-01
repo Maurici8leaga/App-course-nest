@@ -5,7 +5,7 @@ import { User } from '../domain/roots/user';
 import { UserInfraestructure } from '../infraestructure/user.infraestructure';
 
 @Injectable() // se debe colocar este decorador para pueda ejecutar la funcionalidad ".save" de las funciones de crear el user
-// de esta forma se habilita este como servicio
+// de esta forma se habilita este como proveedor
 export class UserCreate {
   // design pattern: inyección de dependencias: dependencias visibles
   // PRINCIPIO SOLID: Inversión de dependencias
