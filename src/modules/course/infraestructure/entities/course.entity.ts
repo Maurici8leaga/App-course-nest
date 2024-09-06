@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { ScheduleEntity } from 'src/modules/schedule/infraestructure/entities/schedule.entity';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'course' }) // este sera el nombre que sera reconocido atraves de la db, OJO no es igual que el de la clase
 export class CourseEntity {
@@ -21,4 +22,7 @@ export class CourseEntity {
 
   @Column({ type: 'boolean' })
   isDeleted: boolean;
+
+  @OneToMany(() => ScheduleEntity, (schedule) => schedule.course)
+  schedules: ScheduleEntity[];
 }
