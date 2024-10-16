@@ -4,12 +4,16 @@ import { AppointmentCOCommand } from '../../application/commands/appointment.co.
 import { AppointmentMXCommand } from '../../application/commands/appointment.mx.command';
 import { CommandBus } from '@nestjs/cqrs';
 import { AppointmentCreateDTO } from './dtos/appointment.create.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 const countryCommands = {
   CL: AppointmentCLCommand,
   CO: AppointmentCOCommand,
   MX: AppointmentMXCommand,
 };
+
+@ApiTags('Appointment') // este decorador para swagger agrupa en una categoria todos los del servicio con el nombre colocado dentro
+// lo que va aca es lo que va a recibir el front o solicitar el front que consumira este backend
 
 @Controller('appointments')
 export class AppointmentController {

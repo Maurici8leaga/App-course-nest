@@ -1,6 +1,11 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { StudentService } from './student.service';
 
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Student') // este decorador para swagger agrupa en una categoria todos los del servicio con el nombre colocado dentro
+// lo que va aca es lo que va a recibir el front o solicitar el front que consumira este backend
+
 @Controller('students') // el decorador Controller responde a los llamados HTTP segun la ruta que se le coloque, y retornando cierta info
 // esto es equivalente a  app.use("/students", StudentController), así sería en express
 export class StudentController {

@@ -24,6 +24,10 @@ export class CourseApplication {
     return await this.repository.findBySlug(slug);
   }
 
+  async findAll(): Promise<Course[]> {
+    return await this.repository.findAll();
+  }
+
   async findByPage(
     page: number,
     pageSize: number,

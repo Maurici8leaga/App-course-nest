@@ -1,9 +1,26 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Version,
+} from '@nestjs/common';
 import { CourseApplication } from '../../application/course.application';
 import { CourseCreateDTO } from './dtos/course-create.dto';
 import { CourseService } from '../../application/services/course.service';
 import { Course, CourseProps } from '../../domain/roots/course';
+import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CourseIdDto } from '../dtos/course-id.dto';
+import { CourseSlugDto } from '../dtos/course-slug.dto';
+import { CourseByPageDto } from '../dtos/course-by-page.dto';
+import { CourseResponse } from '../../application/dtos/course.dto.application';
+
+@ApiTags('Course') // este decorador para swagger agrupa en una categoria todos los del servicio con el nombre colocado dentro
+// lo que va aca es lo que va a recibir el front o solicitar el front que consumira este backend
 
 @Controller('courses') // el decorador Controller responde a los llamados HTTP segun la ruta que se le coloque, y retornando cierta info
 export class CourseController {
@@ -13,6 +30,12 @@ export class CourseController {
   ) {}
 
   @Post()
+  @Version('2') // este modifica la version
+  @ApiCreatedResponse({
+    description: 'The record has been successfully created.',
+    type: CourseResponse, // aca se encuentran los ejemplos que mostrara swagger
+  })
+  @ApiOperation({ summary: 'Create a course' }) // este agrega una breve descricion en la ruta del enpoint en swagger
   async insert(@Body() body: CourseCreateDTO) {
     const slug = await this.courseService.generateSlug(body.title);
 
@@ -23,6 +46,42 @@ export class CourseController {
     };
 
     const course = new Course(props);
+
+    return await this.application.save(course);
+  }
+
+  @Put(':id')
+  async update(@Body() body: CourseCreateDTO, @Param() param: CourseIdDto) {
+    const course = await this.application.findById(param.id);
+    course.update(body);
+
+    return await this.application.save(course);
+  }
+
+  @Get()
+  async findAll() {
+    return await this.application.findAll();
+  }
+
+  @Get(':id')
+  async findById(@Param() param: CourseIdDto) {
+    return await this.application.findById(param.id);
+  }
+
+  @Get(':slug')
+  async findBySlug(@Param() param: CourseSlugDto) {
+    return await this.application.findById(param.slug);
+  }
+
+  @Get(':page/:pageSize')
+  async findByPage(@Param() param: CourseByPageDto) {
+    return await this.application.findByPage(param.page, param.pageSize);
+  }
+
+  @Delete(':id')
+  async delete(@Param() param: CourseIdDto) {
+    const course = await this.application.findById(param.id);
+    course.delete();
 
     return await this.application.save(course);
   }

@@ -6,6 +6,9 @@ import { UserModule } from './modules/user/infraestructure/presentation/user.mod
 import { RoleModule } from './modules/role/interfaces/role.module';
 import { AppointmentModule } from './modules/appointment/infraestructure/presentation/appointment.module';
 import { CourseModule } from './modules/course/infraestructure/presentation/course.module';
+import { ScheduleModule } from './modules/schedule/infraestructure/presentation/schedule.module';
+import { ConfigModule } from '@nestjs/config';
+import { HealthController } from './health/health.controller';
 
 // El Module es el nucleo central de los servicios, donde se unifican los controladores y servicios
 @Module({
@@ -13,13 +16,14 @@ import { CourseModule } from './modules/course/infraestructure/presentation/cour
 
   //en imports esta el ARBOL DE MODULOS
   imports: [
+    ConfigModule.forRoot(),
     StudentModule,
     UserModule,
     RoleModule,
     AppointmentModule,
     CourseModule,
   ], // en se encuentran todos los registros de los modulos de la app, IMPORTANTE si no se declara aca el modulo no se podran acceder a las rutas de los modulos
-  controllers: [AppController], // en el se colocan las rutas que van a ser expuestas mediante HTTP
+  controllers: [AppController, HealthController], // en el se colocan las rutas que van a ser expuestas mediante HTTP
   providers: [AppService], // en el es donde deben ir los servicios inyectables con los cuales trabaja el modulo, OJO solo refente en el
   // contexto del modulo mas no todos los servicios
 })

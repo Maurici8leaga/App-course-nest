@@ -6,7 +6,9 @@ import { UserCreate } from 'src/modules/user/application/user.create';
 import { UserGetOneDTO } from '../dtos/user.get.one.dto';
 import { UserGetOne } from 'src/modules/user/application/user.get.one';
 import { UserList } from 'src/modules/user/application/user.list';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('User') // este decorador para swagger agrupa en una categoria todos los del servicio con el nombre colocado dentro
 // lo que va aca es lo que va a recibir el front o solicitar el front que consumira este backend
 @Controller('users') // "users" sera la ruta al cual se le puede acceder a este controlador, ya esta incluye el '/'
 export class UserController {

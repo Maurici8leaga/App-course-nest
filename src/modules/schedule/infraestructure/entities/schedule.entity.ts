@@ -34,6 +34,9 @@ export class ScheduleEntity {
   @Column({ type: 'int' })
   duration: number;
 
+  @Column({ type: 'int' })
+  sessionsTotal: number;
+
   @Column({ type: 'varchar', length: 20 })
   frequency: string;
 
