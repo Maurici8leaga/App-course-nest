@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { UserCreateDTO } from '../dtos/user.create.dto';
 import { UserProperties } from 'src/modules/user/domain/roots/interfaces/user.interface';
 import { UserFactory } from 'src/modules/user/domain/roots/user.factory';
@@ -7,6 +7,13 @@ import { UserGetOneDTO } from '../dtos/user.get.one.dto';
 import { UserGetOne } from 'src/modules/user/application/user.get.one';
 import { UserList } from 'src/modules/user/application/user.list';
 import { ApiTags } from '@nestjs/swagger';
+import { Crypt } from 'src/core/infraestructure/presentation/services/crypt.service';
+import { AuthenticationGuard } from '../../../../../core/infraestructure/presentation/guards/authentication.guard';
+import { AuthorizationGuard } from '../../../../../core/infraestructure/presentation/guards/authorization.guard';
+import {
+  Roles,
+  RoleEnum,
+} from '../../../../../core/infraestructure/presentation/decorators/roles';
 
 @ApiTags('User') // este decorador para swagger agrupa en una categoria todos los del servicio con el nombre colocado dentro
 // lo que va aca es lo que va a recibir el front o solicitar el front que consumira este backend
@@ -20,20 +27,22 @@ export class UserController {
 
   @Post() // decorador para realizar solicitud post, no hace falta agregar ruta porque toma la de arriba
   async insert(@Body() body: UserCreateDTO) {
-    const userProperties: UserProperties = body;
-
-    // paso importante: validas el negocio OJO ES IMPORTANTE QUE SE VALIDE 2 VECES porque se usa DDD, una se valida en el dto
-    // el otro se valida en el UserFactory
+    // funcion para encriptar el password al hacer el post
+    const userProperties: UserProperties = {
+      ...body,
+      password: await Crypt.encript(body.password),
+    };
     const user = UserFactory.create(userProperties);
 
-    // validar el proceso http
-    await this.userCreate.save(user);
+    const userSaved = await this.userCreate.save(user);
 
-    // el decorador @Body es para indicar que los datos se envian atraves del body
-    return body;
+    return userSaved;
   }
 
   @Get() // decorador para realizar solicitud de get
+  @Roles(RoleEnum.STUDENT, RoleEnum.TEACHER) // este decorador de Roles viene de la carpeta roles de decorators
+  @UseGuards(AuthenticationGuard, AuthorizationGuard) // estos vienen siendo loss middlewares, uno para autenticacion del usuario y otro si el usuario esta autorizado para obtener info
+  // los guards son los encargados de la seguridad de los endpoits
   async list() {
     const users = await this.userList.getList();
     return users;
